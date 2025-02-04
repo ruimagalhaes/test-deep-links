@@ -22,10 +22,22 @@
             padding: 10px;
             background: white;
         }
-        .controls p {
-            margin: 5px 0;
+        .city-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
         }
-        .controls button {
+        .city-buttons button {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            background-color: #2196F3; /* Blue */
+        }
+        .route-buttons button {
             display: block;
             width: 100%;
             padding: 12px;
@@ -36,20 +48,32 @@
             border: none;
             border-radius: 4px;
         }
-        .controls button#routeButton {
+        .route-buttons button#routeButton {
             background-color: #4CAF50;  /* Green */
         }
-        .controls button#resetButton {
+        .route-buttons button#resetButton {
             background-color: #FF9800;  /* Orange */
         }
-        .controls button:disabled {
+        .route-buttons button:disabled {
             background-color: #cccccc;
             cursor: not-allowed;
+        }
+        .coordinates {
+            padding: 10px;
+            background: white;
+        }
+        .coordinates p {
+            margin: 5px 0;
         }
     </style>
 </head>
 <body>
     <div id="map"></div>
+    <div class="city-buttons">
+        <button onclick="goToCity('coimbra')">Coimbra</button>
+        <button onclick="goToCity('washington')">Washington DC</button>
+        <button onclick="goToCity('philadelphia')">Philadelphia</button>
+    </div>
     <div class="controls">
         <p>Origin: <span id="origin">Not selected</span></p>
         <p>Destination: <span id="destination">Not selected</span></p>
@@ -63,42 +87,24 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        if ("geolocation" in navigator) {
-            const options = {
-                enableHighAccuracy: true,
-                timeout: 5000,
-                maximumAge: 0
-            };
-
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    // Success - center map on user's location
-                    map.setView([
-                        position.coords.latitude,
-                        position.coords.longitude
-                    ], 15);
-                },
-                function(error) {
-                    // Error or denied - fall back to default location
-                    console.log("Geolocation error:", error);
-                    handleGeolocationFailure();
-                },
-                options
-            );
-        } else {
-            handleGeolocationFailure();
-        }
-
-        function handleGeolocationFailure() {
-            // Fallback to Coimbra
-            map.setView([40.2033, -8.4103], 13);
-        }
-
         let origin = null;
         let destination = null;
         let originMarker = null;
         let destinationMarker = null;
         let lastTapTime = 0;
+
+        const cities = {
+            coimbra: { lat: 40.2033, lng: -8.4103, zoom: 13 },
+            washington: { lat: 38.8977, lng: -77.0365, zoom: 13 },
+            philadelphia: { lat: 39.9526, lng: -75.1652, zoom: 13 }
+        };
+
+        function goToCity(cityName) {
+            const city = cities[cityName];
+            map.setView([city.lat, city.lng], city.zoom);
+        }
+
+        goToCity("coimbra")
 
         map.on('click', function(e) {
             // Prevent double-tap events
