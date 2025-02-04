@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Route Selector</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        .controls button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            font-size: 16px;
+            cursor: pointer;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        .controls button#routeButton {
+            background-color: #4CAF50;  /* Green */
+        }
+        .controls button#resetButton {
+            background-color: #FF9800;  /* Orange */
+        }
+        .controls button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="controls">
+        <p>Origin: <span id="origin">Not selected</span></p>
+        <p>Destination: <span id="destination">Not selected</span></p>
+        <button onclick="openCircuitRoute()" id="routeButton" disabled>Open in Circuit</button>
+        <button onclick="resetPoints()" id="resetButton">Reset Points</button>
+    </div>
+
+    <script>
+        let map = L.map('map').setView([40.2033, -8.4103], 13); // Centered on Coimbra
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        let origin = null;
+        let destination = null;
+        let originMarker = null;
+        let destinationMarker = null;
+
+        map.on('click', function(e) {
+            if (!origin) {
+                origin = e.latlng;
+                originMarker = L.marker(origin).addTo(map);
+                document.getElementById('origin').textContent = 
+                    `Lat: ${origin.lat.toFixed(6)}, Lon: ${origin.lng.toFixed(6)}`;
+            } else if (!destination) {
+                destination = e.latlng;
+                destinationMarker = L.marker(destination).addTo(map);
+                document.getElementById('destination').textContent = 
+                    `Lat: ${destination.lat.toFixed(6)}, Lon: ${destination.lng.toFixed(6)}`;
+                document.getElementById('routeButton').disabled = false;
+            }
+        });
+
+        function openCircuitRoute() {
+            if (origin && destination) {
+                const url = `https://www.ridecircuit.com/route?origin_lat=${origin.lat}&origin_lon=${origin.lng}&destination_lat=${destination.lat}&destination_lon=${destination.lng}`;
+                window.open(url, '_blank');
+            }
+        }
+
+        function resetPoints() {
+            if (originMarker) map.removeLayer(originMarker);
+            if (destinationMarker) map.removeLayer(destinationMarker);
+            origin = null;
+            destination = null;
+            originMarker = null;
+            destinationMarker = null;
+            document.getElementById('origin').textContent = 'Not selected';
+            document.getElementById('destination').textContent = 'Not selected';
+            document.getElementById('routeButton').disabled = true;
+        }
+    </script>
+</body>
+</html>
