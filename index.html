@@ -45,29 +45,61 @@
     </div>
 
     <script>
-        let map = L.map('map').setView([40.2033, -8.4103], 13); // Centered on Coimbra
+        let map = L.map('map');
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
+
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    // Success - center map on user's location
+                    map.setView([
+                        position.coords.latitude,
+                        position.coords.longitude
+                    ], 15);  // Zoom level 15 for better street-level detail
+                },
+                function(error) {
+                    // Error or denied - fall back to default location
+                    console.log("Geolocation error:", error);
+                    map.setView([40.2033, -8.4103], 13);  // Fallback to Coimbra
+                }
+            );
+        } else {
+            map.setView([40.2033, -8.4103], 13);  // Fallback to Coimbra
+        }
 
         let origin = null;
         let destination = null;
         let originMarker = null;
         let destinationMarker = null;
+        let lastTapTime = 0;
 
         map.on('click', function(e) {
-            if (!origin) {
-                origin = e.latlng;
-                originMarker = L.marker(origin).addTo(map);
-                document.getElementById('origin').textContent = 
-                    `Lat: ${origin.lat.toFixed(6)}, Lon: ${origin.lng.toFixed(6)}`;
-            } else if (!destination) {
-                destination = e.latlng;
-                destinationMarker = L.marker(destination).addTo(map);
-                document.getElementById('destination').textContent = 
-                    `Lat: ${destination.lat.toFixed(6)}, Lon: ${destination.lng.toFixed(6)}`;
-                document.getElementById('routeButton').disabled = false;
+            // Prevent double-tap events
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTapTime;
+            lastTapTime = currentTime;
+
+            if (tapLength < 500) {  // Ignore taps that are too close together (500ms)
+                return;
             }
+
+            // Add a small delay to ensure we're not catching multiple events
+            setTimeout(() => {
+                if (!origin) {
+                    origin = e.latlng;
+                    originMarker = L.marker(origin).addTo(map);
+                    document.getElementById('origin').textContent = 
+                        `Lat: ${origin.lat.toFixed(6)}, Lon: ${origin.lng.toFixed(6)}`;
+                } else if (!destination) {
+                    destination = e.latlng;
+                    destinationMarker = L.marker(destination).addTo(map);
+                    document.getElementById('destination').textContent = 
+                        `Lat: ${destination.lat.toFixed(6)}, Lon: ${destination.lng.toFixed(6)}`;
+                    document.getElementById('routeButton').disabled = false;
+                }
+            }, 100);
         });
 
         function openCircuitRoute() {
