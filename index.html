@@ -51,22 +51,34 @@
         }).addTo(map);
 
         if ("geolocation" in navigator) {
+            const options = {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+            };
+
             navigator.geolocation.getCurrentPosition(
                 function(position) {
                     // Success - center map on user's location
                     map.setView([
                         position.coords.latitude,
                         position.coords.longitude
-                    ], 15);  // Zoom level 15 for better street-level detail
+                    ], 15);
                 },
                 function(error) {
                     // Error or denied - fall back to default location
                     console.log("Geolocation error:", error);
-                    map.setView([40.2033, -8.4103], 13);  // Fallback to Coimbra
-                }
+                    handleGeolocationFailure();
+                },
+                options
             );
         } else {
-            map.setView([40.2033, -8.4103], 13);  // Fallback to Coimbra
+            handleGeolocationFailure();
+        }
+
+        function handleGeolocationFailure() {
+            // Fallback to Coimbra
+            map.setView([40.2033, -8.4103], 13);
         }
 
         let origin = null;
