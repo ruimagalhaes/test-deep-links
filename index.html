@@ -29,7 +29,7 @@
         }
         .city-buttons button {
             flex: 1;
-            padding: 12px;
+            padding: 24px;
             font-size: 16px;
             cursor: pointer;
             color: white;
@@ -40,7 +40,7 @@
         .route-buttons button {
             display: block;
             width: 100%;
-            padding: 12px;
+            padding: 24px;
             margin: 10px 0;
             font-size: 16px;
             cursor: pointer;
@@ -77,8 +77,10 @@
     <div class="controls">
         <p>Origin: <span id="origin">Not selected</span></p>
         <p>Destination: <span id="destination">Not selected</span></p>
-        <button onclick="openCircuitRoute()" id="routeButton" disabled>Open in Circuit</button>
-        <button onclick="resetPoints()" id="resetButton">Reset Points</button>
+        <div class="route-buttons">
+            <button onclick="openCircuitRoute()" id="routeButton" disabled>Open in Circuit</button>
+            <button onclick="resetPoints()" id="resetButton">Reset Points</button>
+        </div>
     </div>
 
     <script>
